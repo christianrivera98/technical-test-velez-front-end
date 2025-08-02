@@ -114,39 +114,6 @@ export default function ProductShowcase() {
 
   return (
     <div className="min-h-screen bg-light-gray">
-      {/* Header */}
-      <header className="bg-pure-white shadow-sm border-b border-cream">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-dark-green">StyleShop</h1>
-            </div>
-            <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-dark-green hover:text-olive-green transition-colors">
-                Mujer
-              </a>
-              <a href="#" className="text-dark-green hover:text-olive-green transition-colors">
-                Hombre
-              </a>
-              <a href="#" className="text-dark-green hover:text-olive-green transition-colors">
-                Niños
-              </a>
-              <a href="#" className="text-dark-green hover:text-olive-green transition-colors">
-                Ofertas
-              </a>
-            </nav>
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="icon">
-                <Heart className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <ShoppingCart className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filters Bar */}
         <div className="flex flex-col lg:flex-row gap-4 mb-8">
