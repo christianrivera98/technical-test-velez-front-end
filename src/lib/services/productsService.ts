@@ -5,14 +5,23 @@ import { ErrorResponse } from "@/api/errorResponse";
 import { ProductResponse } from "@/api/response/productsResponse";
 import { Product, ProductFilters, SortOption } from "@/types/productsInterface"; 
 
+// Interfaz para la respuesta de productos (vitrina)
+// Puede ser un array directo o un objeto con products
+type ProductsApiResponse = Product[] | {
+  products: Product[];
+  totalProducts?: number;
+  totalPages?: number;
+  currentPage?: number;
+};
+
 export const productService = {
-   //Get products with pagination, filters, and sorting
+  // Get products with pagination, filters, and sorting
   getProducts: async (
     page: number = 1,
     limit: number = 10,
     filters?: ProductFilters,
     sortOption?: SortOption
-  ): Promise<ApiResponse<Product[]> | ErrorResponse> => {
+  ): Promise<ApiResponse<ProductsApiResponse> | ErrorResponse> => {
     try {
       const params = {
         page,
@@ -29,14 +38,14 @@ export const productService = {
         ...(sortOption && { sort: sortOption }),
       };
 
-      const response = await apiClient.get<ApiResponse<Product[]>>('/products', { params });
+      const response = await apiClient.get<ApiResponse<ProductsApiResponse>>('/products', { params });
       return response.data;
     } catch (error) {
       return handleApiError(error);
     }
   },
 
-// Get a single product by ID
+  // Get a single product by ID
   getProductById: async (
     productId: string
   ): Promise<ProductResponse | ErrorResponse> => {

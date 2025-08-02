@@ -16,21 +16,55 @@ import {
 import { ShowcaseProduct } from "@/types/productsInterface"
 
 interface ProductCardProps {
-  product: ShowcaseProduct
+  product: ShowcaseProduct;
+  onAddToCart?: (productId: string, itemId: string) => void;
+  onToggleFavorite?: (productId: string) => void;
+  onProductClick?: (productId: string) => void;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const price = getProductPrice(product)
-  const originalPrice = getProductOriginalPrice(product)
-  const isOnSale = isProductOnSale(product)
-  const isNew = isProductNew(product)
-  const image = getProductImage(product)
-  const colors = getProductColors(product)
-  const rating = getProductRating(product)
-  const reviews = getProductReviews(product)
+export default function ProductCard({ 
+  product, 
+  onAddToCart, 
+  onToggleFavorite, 
+  onProductClick 
+}: ProductCardProps) {
+  const price = getProductPrice(product);
+  const originalPrice = getProductOriginalPrice(product);
+  const isOnSale = isProductOnSale(product);
+  const isNew = isProductNew(product);
+  const image = getProductImage(product);
+  const colors = getProductColors(product);
+  const rating = getProductRating(product);
+  const reviews = getProductReviews(product);
+
+  // Obtener el primer item disponible para acciones rápidas
+  const firstItem = product.items?.[0];
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onAddToCart && firstItem) {
+      onAddToCart(product.productId, firstItem.itemId);
+    }
+  };
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onToggleFavorite) {
+      onToggleFavorite(product.productId);
+    }
+  };
+
+  const handleProductClick = () => {
+    if (onProductClick) {
+      onProductClick(product.productId);
+    }
+  };
 
   return (
-    <Card className="group overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all duration-300 bg-pure-white">
+    <Card 
+      className="group overflow-hidden border-0 shadow-sm hover:shadow-lg transition-all duration-300 bg-pure-white cursor-pointer"
+      onClick={handleProductClick}
+    >
       <div className="relative overflow-hidden">
         <img
           src={image || "/placeholder.svg"}
@@ -42,12 +76,22 @@ export default function ProductCard({ product }: ProductCardProps) {
           {isOnSale && <Badge className="bg-burnt-orange text-pure-white">Oferta</Badge>}
         </div>
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Button size="icon" variant="secondary" className="h-8 w-8 bg-pure-white/90 hover:bg-pure-white">
+          <Button 
+            size="icon" 
+            variant="secondary" 
+            className="h-8 w-8 bg-pure-white/90 hover:bg-pure-white"
+            onClick={handleToggleFavorite}
+          >
             <Heart className="h-4 w-4" />
           </Button>
         </div>
         <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Button size="icon" className="h-8 w-8 bg-dark-green hover:bg-olive-green">
+          <Button 
+            size="icon" 
+            className="h-8 w-8 bg-dark-green hover:bg-olive-green"
+            onClick={handleAddToCart}
+            disabled={!firstItem}
+          >
             <ShoppingCart className="h-4 w-4" />
           </Button>
         </div>
@@ -69,8 +113,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
         <h3 className="font-medium text-dark-green mb-2 line-clamp-2">{product.productName}</h3>
         <div className="flex items-center gap-2 mb-3">
-          <span className="font-bold text-lg text-dark-green">${price.toFixed(2)}</span>
-          {originalPrice && <span className="text-sm text-gray-500 line-through">${originalPrice.toFixed(2)}</span>}
+          <span className="font-bold text-lg text-dark-green">${price?.toFixed(2) ?? '0.00'}</span>
+          {originalPrice && originalPrice > price && (
+            <span className="text-sm text-gray-500 line-through">${originalPrice.toFixed(2)}</span>
+          )}
         </div>
         <div className="flex flex-wrap gap-1">
           {colors.slice(0, 3).map((color, index) => (
