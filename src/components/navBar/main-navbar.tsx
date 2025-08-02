@@ -47,15 +47,17 @@ export default function MainNavbar({ searchTerm, setSearchTerm }: MainNavbarProp
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out ${scrolled ? "py-2" : "py-4"}`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out ${scrolled ? "py-2" : "py-0"}`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className={cn("relative transition-all duration-700 ease-out ",
+        scrolled ? "max-[w-7xl] mx-auto  px-4 sm:px-6 lg:px-8" : "max-[w-7xl] mx-auto px-0")}
+      >
         <div
           className={cn(
             "relative transition-all duration-700 ease-out",
             scrolled
-              ? "bg-transparent backdrop-blur-xl shadow-lg rounded-3xl border border-pure-white/10"
-              : "bg-transparent backdrop-blur-md shadow-md rounded-[2rem] border border-pure-white/5",
+              ? "bg-transparent backdrop-blur-xl shadow-lg rounded-3xl px-4 sm:px-6 lg:px-8 border border-pure-white/10"
+              : "bg-transparent backdrop-blur-md shadow-md border border-pure-white/5",
           )}
         >
           {/* Animated Background Orbs */}
@@ -68,24 +70,13 @@ export default function MainNavbar({ searchTerm, setSearchTerm }: MainNavbarProp
             {/* Logo with Morphing Animation */}
             <div className="flex items-center space-x-4 group">
               <div className="relative">
-                <div
-                  className={cn(
-                    "transition-all duration-500 ease-out",
-                    scrolled ? "w-10 h-10" : "w-14 h-14",
-                    "bg-gradient-to-br from-dark-green via-olive-green to-burnt-orange rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transform transition-all duration-300",
-                  )}
-                >
-                  <Sparkles
-                    className={cn("text-pure-white transition-all duration-500", scrolled ? "h-5 w-5" : "h-7 w-7")}
-                  />
-                </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-golden/50 to-burnt-orange/50 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
 
               <div className="flex flex-col">
                 <h1
                   className={cn(
-                    "font-black bg-gradient-to-r from-dark-green via-olive-green to-burnt-orange bg-clip-text text-transparent transition-all duration-500",
+                    "font-black bg-gradient-to-r from-dark-green via-olive-green to-burnt-orange bg-clip-text text-sidebar-primary transition-all duration-500",
                     scrolled ? "text-xl" : "text-2xl",
                   )}
                 >
@@ -111,9 +102,9 @@ export default function MainNavbar({ searchTerm, setSearchTerm }: MainNavbarProp
                   <a
                     href="#"
                     className={cn(
-                      "relative px-6 py-3 font-medium rounded-full transition-all duration-300 hover:bg-cream/50 hover:shadow-lg hover:scale-105 group flex items-center space-x-1",
+                      "relative px-6 py-3 font-medium  transition-all duration-300 hover:bg-cream/50 hover:scale-105 group flex items-center space-x-1",
                       item.isSpecial
-                        ? "bg-gradient-to-r from-burnt-orange to-golden text-pure-white font-bold shadow-lg"
+                        ? "bg-gradient-to-r from-burnt-orange to-golden text-pure-white font-bold"
                         : "text-dark-green",
                     )}
                     style={{ animationDelay: `${index * 100}ms` }}
