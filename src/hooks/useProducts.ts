@@ -60,7 +60,8 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         currentFilters || filters,
         currentSort || sortOption
       );
-      console.log('Fetched products:', result);
+      console.log('Fetched products result:', result);
+  
       
       if ('statusCode' in result) {
         // Es un error
@@ -72,21 +73,36 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         }));
       } else {
         // Es una respuesta exitosa
-        const productsData = result.data;
+        const productsData = result;
+        console.log('Products data before processing:', productsData);
         
-        // Verificar si la respuesta es un array directamente o un objeto con products
         let products: Product[] = [];
         let totalProducts = 0;
         
+        // Manejo más explícito de la respuesta
         if (Array.isArray(productsData)) {
-          // Si la respuesta es directamente un array de productos
+          console.log('Processing as direct array');
           products = productsData;
           totalProducts = products.length;
         } else if (productsData && typeof productsData === 'object') {
-          // Si la respuesta es un objeto que contiene products
-          products = productsData.products || [];
-          totalProducts = productsData.totalProducts || products.length;
+          console.log('Processing as object with products property');
+          // Si es un objeto, intentar extraer los productos
+          if ('products' in productsData && Array.isArray(productsData.products)) {
+            products = productsData.products;
+          } else {
+            // Si no tiene property 'products', usar el objeto completo si es válido
+            console.log('Object does not have products property, treating as single product or invalid');
+            products = [];
+            totalProducts = 0;
+          }
+        } else {
+          console.log('Invalid data format');
+          products = [];
+          totalProducts = 0;
         }
+        
+        console.log('Final processed products:', products);
+        console.log('Final total products:', totalProducts);
         
         setState(prev => ({
           ...prev,
@@ -96,7 +112,14 @@ export const useProducts = (options: UseProductsOptions = {}) => {
           totalProducts: totalProducts,
           currentPage: page,
           hasMore: products.length === itemsPerPage,
-        }));
+        })); 
+        
+        console.log('Updated products state:', {
+          products, 
+          totalProducts, 
+          currentPage: page, 
+          hasMore: products.length === itemsPerPage
+        });
       }
     } catch (error) {
       console.error('Error in fetchProducts:', error);
@@ -110,7 +133,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         products: reset ? [] : prev.products,
       }));
     }
-  }, [itemsPerPage]); // SOLO itemsPerPage como dependencia
+  }, [itemsPerPage, filters, sortOption]); 
 
   const loadMore = useCallback(() => {
     if (!state.loading && state.hasMore) {
@@ -119,7 +142,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   }, [state.loading, state.hasMore, state.currentPage, fetchProducts, filters, sortOption]);
 
   const updateFilters = useCallback((newFilters: Partial<ProductFilters>) => {
-    setFilters(prev => prev ? { ...prev, ...newFilters } : undefined);
+    setFilters(prev => prev ? { ...prev, ...newFilters } : newFilters as ProductFilters);
   }, []);
 
   const updateSort = useCallback((newSort: SortOption) => {
@@ -139,6 +162,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   // Auto-fetch cuando cambian los filtros o sort
   useEffect(() => {
     if (autoFetch && hasInitialFetched.current) {
+      console.log('Auto-fetch triggered by filters/sort change');
       fetchProducts(1, true, filters, sortOption);
     }
   }, [filters, sortOption, searchTerm, autoFetch, fetchProducts]);
@@ -146,6 +170,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   // Initial fetch - solo una vez
   useEffect(() => {
     if (autoFetch && !hasInitialFetched.current) {
+      console.log('Initial fetch triggered');
       hasInitialFetched.current = true;
       fetchProducts(1, true, filters, sortOption);
     }

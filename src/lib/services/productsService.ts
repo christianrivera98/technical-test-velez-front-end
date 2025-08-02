@@ -18,10 +18,10 @@ export const productService = {
   // Get products with pagination, filters, and sorting
   getProducts: async (
     page: number = 1,
-    limit: number = 10,
+    limit: number = 20,
     filters?: ProductFilters,
     sortOption?: SortOption
-  ): Promise<ApiResponse<ProductsApiResponse> | ErrorResponse> => {
+  ): Promise<ProductResponse | ErrorResponse> => {
     try {
       const params = {
         page,
@@ -38,7 +38,7 @@ export const productService = {
         ...(sortOption && { sort: sortOption }),
       };
 
-      const response = await apiClient.get<ApiResponse<ProductsApiResponse>>('/products', { params });
+      const response = await apiClient.get('/products', { params });
       return response.data;
     } catch (error) {
       return handleApiError(error);
