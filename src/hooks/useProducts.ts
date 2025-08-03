@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Product, ProductFilters, SortOption } from '@/types/productsInterface';
+import { Product, ProductFilters, SortOption, ApiProduct } from '@/types/productsInterface';
 import { ErrorResponse } from '@/api/errorResponse';
 import { productService } from '@/lib/services/productsService';
+import { transformApiProduct } from '@/lib/helpers/transforApiProduct';
 
 interface UseProductsState {
   products: Product[];
@@ -45,6 +46,52 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   // Ref para evitar el bucle infinito en el primer fetch
   const hasInitialFetched = useRef(false);
 
+  // Función para aplicar filtros en el cliente - SIMPLIFICADA
+  const applyFilters = useCallback((products: Product[], currentFilters?: ProductFilters, searchTerm?: string): Product[] => {
+    let filtered = [...products];
+
+    // Aplicar filtro de búsqueda
+    if (searchTerm && searchTerm.trim()) {
+      const search = searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(product => 
+        product.productName.toLowerCase().includes(search) ||
+        product.brand.toLowerCase().includes(search) ||
+        product.description.toLowerCase().includes(search)
+      );
+    }
+
+    // Solo aplicar filtro de categoría si está definido y no es "todos"
+    if (currentFilters?.category && currentFilters.category !== 'todos') {
+      filtered = filtered.filter(product => 
+        product.categories.some(cat => 
+          cat.toLowerCase().includes(currentFilters.category.toLowerCase())
+        )
+      );
+    }
+
+    return filtered;
+  }, []);
+
+  // Función para aplicar ordenamiento
+  const applySorting = useCallback((products: Product[], sortOption: SortOption): Product[] => {
+    const sorted = [...products];
+    
+    switch (sortOption) {
+      case 'price-low':
+        return sorted.sort((a, b) => a.minPrice - b.minPrice);
+      case 'price-high':
+        return sorted.sort((a, b) => b.maxPrice - a.maxPrice);
+      case 'newest':
+        return sorted.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
+      case 'rating':
+        // Si tienes un campo de rating, úsalo aquí
+        return sorted; // Por ahora sin cambios
+      case 'featured':
+      default:
+        return sorted; // Orden original de la API
+    }
+  }, []);
+
   const fetchProducts = useCallback(async (
     page: number = 1,
     reset: boolean = true,
@@ -62,7 +109,6 @@ export const useProducts = (options: UseProductsOptions = {}) => {
       );
       console.log('Fetched products result:', result);
   
-      
       if ('statusCode' in result) {
         // Es un error
         setState(prev => ({
@@ -73,52 +119,57 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         }));
       } else {
         // Es una respuesta exitosa
-        const productsData = result;
-        console.log('Products data before processing:', productsData);
+        let apiProducts: ApiProduct[] = [];
         
-        let products: Product[] = [];
-        let totalProducts = 0;
-        
-        // Manejo más explícito de la respuesta
-        if (Array.isArray(productsData)) {
-          console.log('Processing as direct array');
-          products = productsData;
-          totalProducts = products.length;
-        } else if (productsData && typeof productsData === 'object') {
-          console.log('Processing as object with products property');
-          // Si es un objeto, intentar extraer los productos
-          if ('products' in productsData && Array.isArray(productsData.products)) {
-            products = productsData.products;
-          } else {
-            // Si no tiene property 'products', usar el objeto completo si es válido
-            console.log('Object does not have products property, treating as single product or invalid');
-            products = [];
-            totalProducts = 0;
-          }
+        // Manejo de la respuesta de la API
+        if (Array.isArray(result)) {
+          apiProducts = result;
+        } else if (result && typeof result === 'object' && 'products' in result && Array.isArray(result.products)) {
+          apiProducts = result.products;
         } else {
           console.log('Invalid data format');
-          products = [];
-          totalProducts = 0;
+          apiProducts = [];
         }
         
-        console.log('Final processed products:', products);
-        console.log('Final total products:', totalProducts);
+        console.log('API products before transformation:', apiProducts);
+        
+        // Transformar productos de la API al formato interno
+        const transformedProducts = apiProducts.map(transformApiProduct);
+        console.log('Transformed products:', transformedProducts);
+        
+        // Para el primer fetch o cuando no hay filtros específicos, mostrar todos los productos
+        let processedProducts = transformedProducts;
+        
+        // Solo aplicar filtros si hay criterios activos
+        const hasActiveFilters = (
+          (currentFilters?.category && currentFilters.category !== 'todos') ||
+          (searchTerm && searchTerm.trim())
+        );
+
+        if (hasActiveFilters) {
+          processedProducts = applyFilters(processedProducts, currentFilters || filters, searchTerm);
+        }
+        
+        // Aplicar ordenamiento
+        processedProducts = applySorting(processedProducts, currentSort || sortOption);
+        
+        console.log('Final processed products:', processedProducts);
         
         setState(prev => ({
           ...prev,
           loading: false,
           error: null,
-          products: reset ? products : [...prev.products, ...products],
-          totalProducts: totalProducts,
+          products: reset ? processedProducts : [...prev.products, ...processedProducts],
+          totalProducts: transformedProducts.length, // Total de productos sin filtrar
           currentPage: page,
-          hasMore: products.length === itemsPerPage,
+          hasMore: processedProducts.length === itemsPerPage,
         })); 
         
         console.log('Updated products state:', {
-          products, 
-          totalProducts, 
+          products: processedProducts, 
+          totalProducts: transformedProducts.length, 
           currentPage: page, 
-          hasMore: products.length === itemsPerPage
+          hasMore: processedProducts.length === itemsPerPage
         });
       }
     } catch (error) {
@@ -133,7 +184,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         products: reset ? [] : prev.products,
       }));
     }
-  }, [itemsPerPage, filters, sortOption]); 
+  }, [itemsPerPage, filters, sortOption, applyFilters, applySorting, searchTerm]); 
 
   const loadMore = useCallback(() => {
     if (!state.loading && state.hasMore) {
@@ -150,7 +201,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   }, []);
 
   const clearFilters = useCallback(() => {
-    setFilters(undefined);
+    setFilters({ category: 'todos' });
     setSearchTerm('');
     setSortOption('featured');
   }, []);
