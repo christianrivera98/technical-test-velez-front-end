@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingCart } from "lucide-react";
 import {
-  ShoppingCartProvider,
   useCart,
 } from "../context/shopping-cart-context";
 
@@ -57,7 +56,7 @@ export function ShoppingCartSidebar() {
   }
 
   return (
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-[90vh]">
         <div className="flex-1 overflow-y-auto py-4">
           <div className="space-y-4">
             {cartItems.map((item) => (
@@ -135,7 +134,7 @@ export function ShoppingCartSidebar() {
           </div>
         </div>
 
-        <div className="border-t pt-4 space-y-4 bg-white">
+        <div className="border-t p-4 space-y-4 bg-white">
           <div className="flex justify-between items-center">
             <span className="text-base font-medium text-gray-900">
               Total ({state.itemCount}{" "}

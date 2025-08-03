@@ -6,7 +6,6 @@ import { Loader2, AlertCircle, ArrowLeft } from "lucide-react"
 import { ProductDetailsView } from "@/components/productDeails/product-details-view"
 import { useParams } from "next/navigation"
 import { useProductById } from "@/hooks/useProductDetails"
-import { ShoppingCartProvider } from "@/components/cart/context/shopping-cart-context"
 
 interface ProductPageProps {
   productId: string
@@ -107,7 +106,6 @@ export default function ProductPage({ onBack }: ProductPageProps) {
     )
   }
 
-  // Renderizar el producto
   return (
       <ProductDetailsView product={product} productId={productId} />
   )
