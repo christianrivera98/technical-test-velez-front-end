@@ -1,16 +1,16 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import type { ApiProduct } from "@/types/productsInterface"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Heart, Share2, ShoppingCart, Star, Truck, Shield, RotateCcw, ChevronRight } from "lucide-react"
+import { Heart, Share2, ShoppingCart, Star, Truck, Shield, RotateCcw, ChevronRight, Check } from "lucide-react"
 import { ImageGallery } from "./image-gallery"
 import { ProductVariantSelector } from "./product-variant-selector"
-import { ProductSpecs } from "./product-specs"
+import { useCart } from "../cart/context/shopping-cart-context"
 
 interface ProductDetailsViewProps {
   product: ApiProduct;
@@ -23,6 +23,8 @@ export function ProductDetailsView({ product, productId }: ProductDetailsViewPro
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [quantity, setQuantity] = useState(1)
   const [isFavorite, setIsFavorite] = useState(false)
+  const [isAdded, setIsAdded] = useState(false)
+  const { addItem } = useCart()
 
   console.log("Datos en ProductDetailsView:", product);
 
@@ -39,41 +41,96 @@ export function ProductDetailsView({ product, productId }: ProductDetailsViewPro
     }
   }, [product, selectedColor, selectedSize]);
 
-  const handleAddToCart = () => {
-    console.log("Agregando al carrito:", {
-      product,
-      selectedColor,
-      selectedSize,
-      quantity,
-    })
-  }
+  // Memoizar el item seleccionado y sus datos
+  const selectedItemData = useMemo(() => {
+    const selectedItem = product.items?.find(item => {
+      const hasColor = !selectedColor || (item.Color && item.Color.includes(selectedColor))
+      const hasSize = !selectedSize || (item.Talla && item.Talla.includes(selectedSize))
+      return hasColor && hasSize
+    }) || product.items?.[0]
 
-  // Extraer datos del producto basándome en la estructura real
-  let price = 0;
-  let listPrice = 0;
-  let isAvailable = true;
-  let images: any[] = [];
+    if (!selectedItem) return null
 
-  if (product.items && product.items.length > 0) {
-    const firstItem = product.items[0];
-    
-    // Buscar precios en las propiedades del item
-    if (firstItem.sellers && firstItem.sellers.length > 0) {
-      const seller = firstItem.sellers[0];
+    // Calcular precio
+    let price = 0;
+    let listPrice = 0;
+    let isAvailable = true;
+
+    if (selectedItem.sellers && selectedItem.sellers.length > 0) {
+      const seller = selectedItem.sellers[0];
       if (seller.commertialOffer) {
         price = seller.commertialOffer.Price || 0;
         listPrice = seller.commertialOffer.ListPrice || 0;
         isAvailable = seller.commertialOffer.IsAvailable || false;
       }
     }
-    
-    // Obtener imágenes
-    images = firstItem.images || [];
+
+    // Obtener imagen principal
+    const mainImage = selectedItem.images && selectedItem.images.length > 0 
+      ? selectedItem.images[0].imageUrl 
+      : '/placeholder-image.jpg'
+
+    const discountPercentage = listPrice > price 
+      ? Math.round(((listPrice - price) / listPrice) * 100)
+      : 0;
+
+    return {
+      selectedItem,
+      price,
+      listPrice,
+      isAvailable,
+      mainImage,
+      discountPercentage,
+      images: selectedItem.images || []
+    }
+  }, [product, selectedColor, selectedSize])
+
+  const handleAddToCart = () => {
+    if (!selectedItemData) return
+
+    console.log("Agregando al carrito:", {
+      product,
+      selectedColor,
+      selectedSize,
+      quantity,
+    })
+
+    // Crear el item del carrito
+    const cartItem = {
+      id: productId,
+      itemId: selectedItemData.selectedItem.itemId,
+      name: product.productName,
+      price: selectedItemData.price,
+      image: selectedItemData.mainImage,
+      color: selectedColor || undefined,
+      size: selectedSize || undefined,
+      brand: product.brand,
+      isAvailable: selectedItemData.isAvailable
+    }
+
+    // Agregar cada cantidad individualmente para manejar correctamente la cantidad
+    for (let i = 0; i < quantity; i++) {
+      addItem(cartItem)
+    }
+
+    // Mostrar feedback visual
+    setIsAdded(true)
+    setTimeout(() => setIsAdded(false), 2000)
   }
 
-  const discountPercentage = listPrice > price 
-    ? Math.round(((listPrice - price) / listPrice) * 100)
-    : 0;
+  // Si no hay datos del item seleccionado, mostrar un estado de carga
+  if (!selectedItemData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-500">Cargando producto...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const { price, listPrice, isAvailable, images, discountPercentage } = selectedItemData
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
@@ -106,6 +163,11 @@ export function ProductDetailsView({ product, productId }: ProductDetailsViewPro
                   -{discountPercentage}%
                 </Badge>
               )}
+              {!isAvailable && (
+                <Badge className="bg-gray-500 hover:bg-gray-600 text-white">
+                  No disponible
+                </Badge>
+              )}
             </div>
           </div>
 
@@ -122,7 +184,7 @@ export function ProductDetailsView({ product, productId }: ProductDetailsViewPro
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsFavorite(!isFavorite)}
-                    className="text-gray-500 hover:text-red-500"
+                    className="text-gray-500 hover:text-red-500 transition-colors duration-200"
                   >
                     <Heart className={`w-5 h-5 ${isFavorite ? "fill-red-500 text-red-500" : ""}`} />
                   </Button>
@@ -187,11 +249,19 @@ export function ProductDetailsView({ product, productId }: ProductDetailsViewPro
                   size="sm"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={quantity <= 1}
+                  className="transition-colors duration-200"
                 >
                   -
                 </Button>
-                <span className="w-12 text-center font-medium">{quantity}</span>
-                <Button variant="outline" size="sm" onClick={() => setQuantity(quantity + 1)}>
+                <span className="w-12 text-center font-medium bg-gray-50 px-3 py-2 rounded border">
+                  {quantity}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="transition-colors duration-200"
+                >
                   +
                 </Button>
               </div>
@@ -201,14 +271,28 @@ export function ProductDetailsView({ product, productId }: ProductDetailsViewPro
             <div className="space-y-3">
               <Button
                 onClick={handleAddToCart}
-                className="w-full h-12 text-lg font-medium cursor-pointer active:scale-95 bg-black hover:bg-gray-800"
+                disabled={!isAvailable}
+                className={`w-full h-12 text-lg font-medium cursor-pointer active:scale-95 transition-all duration-200 ${
+                  isAdded 
+                    ? 'bg-green-600 hover:bg-green-700' 
+                    : isAvailable
+                    ? 'bg-black hover:bg-gray-800'
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
               >
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                Agregar al carrito
-              </Button>
-
-              <Button variant="outline" className="w-full h-12 bg-transparent">
-                Comprar Ahora
+                {!isAvailable ? (
+                  'No disponible'
+                ) : isAdded ? (
+                  <>
+                    <Check className="w-5 h-5 mr-2" />
+                    ¡Agregado al carrito!
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-5 h-5 mr-2" />
+                    Agregar al carrito
+                  </>
+                )}
               </Button>
             </div>
 
@@ -264,7 +348,6 @@ export function ProductDetailsView({ product, productId }: ProductDetailsViewPro
                         <span>{product.categories[0]}</span>
                       </div>
                     )}
-                    {/* Agregar más especificaciones según las propiedades disponibles */}
                   </div>
                 </div>
               </Card>

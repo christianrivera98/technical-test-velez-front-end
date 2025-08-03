@@ -1,28 +1,30 @@
 "use client"
 
 import { useState } from "react"
-import { Heart, ShoppingCart, Star } from "lucide-react"
+import { Heart, ShoppingCart, Star, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Product } from "@/types/productsInterface"
 import { useRouter } from "next/navigation"
+import { useCart } from "../cart/context/shopping-cart-context"
 
 interface ProductCardProps {
   product: Product
-  onAddToCart: (productId: string, itemId: string) => void
   onProductClick: (productId: string) => void
+  onAddToCart?: (productId: string, itemId: string) => void // Hacer opcional
 }
 
 export default function ProductCard({
   product,
-  onAddToCart,
   onProductClick,
+  onAddToCart, // Esta prop ahora es opcional
 }: ProductCardProps) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [selectedItemIndex, setSelectedItemIndex] = useState(0)
-  const router = useRouter();
-
+  const [isAdded, setIsAdded] = useState(false)
+  const router = useRouter()
+  const { addItem, state, dispatch } = useCart() // Agregamos state para debugging
   // Obtener el item seleccionado
   const selectedItem = product.items[selectedItemIndex] || product.items[0]
   const mainImage = selectedItem?.images[0]?.imageUrl || '/placeholder-image.jpg'
@@ -38,25 +40,60 @@ export default function ProductCard({
     setIsFavorite(!isFavorite)
   }
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (selectedItem) {
-      onAddToCart(product.productId, selectedItem.itemId)
+   
+    if (selectedItem && selectedItem.isAvailable) {
+      console.log('ProductCard: Adding to cart', selectedItem)
+      
+      // Preparar los datos del producto para el carrito
+      const cartItem = {
+        id: product.productId,
+        itemId: selectedItem.itemId,
+        name: product.productName,
+        price: selectedItem.price,
+        image: mainImage,
+        color: selectedItem.colors?.[0] || undefined,
+        size: selectedItem.sizes?.[0] || undefined,
+        brand: product.brand,
+        isAvailable: selectedItem.isAvailable
+      }
+
+      console.log('ProductCard: Cart item to add:', cartItem)
+      console.log('ProductCard: Current cart state before add:', state)
+
+      try {
+        // Usar la función addItem del contexto
+        addItem(cartItem)
+
+        // Llamar la función onAddToCart si existe (para compatibilidad)
+        if (onAddToCart) {
+          onAddToCart(product.productId, selectedItem.itemId)
+        }
+
+        // Mostrar feedback visual
+        setIsAdded(true)
+        setTimeout(() => setIsAdded(false), 2000)
+
+        console.log('ProductCard: Item added successfully')
+      } catch (error) {
+        console.error('ProductCard: Error adding item to cart:', error)
+      }
     }
   }
 
   const handleCardClick = () => {
     onProductClick(product.productId)
-    router.push(`product-details/${product.productId}`);
-
+    router.push(`product-details/${product.productId}`)
   }
 
-  const handleItemChange = (index: number) => {
+  const handleItemChange = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation()
     setSelectedItemIndex(index)
   }
 
   return (
-    <Card className="group cursor-pointer overflow-hidden bg-pure-white border-cream hover:shadow-lg transition-all duration-300">
+    <Card className="group cursor-pointer overflow-hidden bg-pure-white border-cream hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]">
       <div onClick={handleCardClick}>
         {/* Image Container */}
         <div className="relative aspect-square overflow-hidden">
@@ -64,6 +101,7 @@ export default function ProductCard({
             src={mainImage}
             alt={product.productName}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
           />
           
           {/* Badges */}
@@ -78,16 +116,21 @@ export default function ProductCard({
                 -{discountPercentage}%
               </Badge>
             )}
+            {!selectedItem?.isAvailable && (
+              <Badge className="bg-gray-500 text-pure-white text-xs">
+                Sin stock
+              </Badge>
+            )}
           </div>
 
           {/* Favorite Button */}
           <Button
             variant="ghost"
             size="icon"
-            className={`absolute top-2 right-2 h-8 w-8 rounded-full ${
+            className={`absolute top-2 right-2 h-8 w-8 rounded-full transition-all duration-200 ${
               isFavorite 
-                ? 'bg-burnt-orange text-pure-white hover:bg-burnt-orange/90' 
-                : 'bg-pure-white/80 text-dark-green hover:bg-pure-white'
+                ? 'bg-burnt-orange text-pure-white hover:bg-burnt-orange/90 scale-110' 
+                : 'bg-pure-white/80 text-dark-green hover:bg-pure-white hover:scale-110'
             }`}
             onClick={handleFavoriteClick}
           >
@@ -95,24 +138,39 @@ export default function ProductCard({
           </Button>
 
           {/* Quick Add to Cart - appears on hover */}
-          <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
             <Button
               onClick={handleAddToCart}
               disabled={!selectedItem?.isAvailable}
-              className="w-full bg-dark-green hover:bg-olive-green text-pure-white text-sm py-2"
+              className={`w-full text-pure-white text-sm py-2 transition-all duration-200 ${
+                isAdded 
+                  ? 'bg-green-600 hover:bg-green-700 scale-105' 
+                  : selectedItem?.isAvailable
+                  ? 'bg-dark-green hover:bg-olive-green active:scale-95'
+                  : 'bg-gray-400 cursor-not-allowed'
+              }`}
             >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              {selectedItem?.isAvailable ? 'Agregar al carrito' : 'No disponible'}
+              {isAdded ? (
+                <>
+                  <Check className="h-4 w-4 mr-2" />
+                  ¡Agregado!
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  {selectedItem?.isAvailable ? 'Agregar' : 'Sin stock'}
+                </>
+              )}
             </Button>
           </div>
         </div>
 
         <CardContent className="p-4">
           {/* Brand */}
-          <p className="text-sm text-gray-600 mb-1">{product.brand}</p>
+          <p className="text-sm text-gray-600 mb-1 font-medium">{product.brand}</p>
           
           {/* Product Name */}
-          <h3 className="font-medium text-dark-green mb-2 line-clamp-2 group-hover:text-olive-green transition-colors">
+          <h3 className="font-medium text-dark-green mb-2 line-clamp-2 group-hover:text-olive-green transition-colors duration-200">
             {product.productName}
           </h3>
 
@@ -122,7 +180,7 @@ export default function ProductCard({
               {product.availableColors.slice(0, 5).map((color, index) => (
                 <div
                   key={color}
-                  className="w-4 h-4 rounded-full border border-gray-300"
+                  className="w-4 h-4 rounded-full border border-gray-300 hover:scale-110 transition-transform duration-200"
                   style={{ 
                     backgroundColor: getColorValue(color)
                   }}
@@ -130,7 +188,7 @@ export default function ProductCard({
                 />
               ))}
               {product.availableColors.length > 5 && (
-                <span className="text-xs text-gray-500 ml-1">
+                <span className="text-xs text-gray-500 ml-1 self-center">
                   +{product.availableColors.length - 5}
                 </span>
               )}
@@ -154,25 +212,23 @@ export default function ProductCard({
                 {product.items.slice(0, 3).map((item, index) => (
                   <button
                     key={item.itemId}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleItemChange(index)
-                    }}
-                    className={`w-8 h-8 rounded border-2 overflow-hidden ${
+                    onClick={(e) => handleItemChange(index, e)}
+                    className={`w-8 h-8 rounded border-2 overflow-hidden transition-all duration-200 ${
                       selectedItemIndex === index 
-                        ? 'border-olive-green' 
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-olive-green scale-110' 
+                        : 'border-gray-200 hover:border-gray-300 hover:scale-105'
                     }`}
                   >
                     <img
                       src={item.images[0]?.imageUrl || '/placeholder-image.jpg'}
                       alt=""
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </button>
                 ))}
                 {product.items.length > 3 && (
-                  <div className="w-8 h-8 rounded border-2 border-gray-200 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded border-2 border-gray-200 flex items-center justify-center hover:border-gray-300 transition-colors duration-200">
                     <span className="text-xs text-gray-500">
                       +{product.items.length - 3}
                     </span>
@@ -194,17 +250,28 @@ export default function ProductCard({
             )}
           </div>
 
-          {/* Rating placeholder */}
-          <div className="flex items-center gap-1 text-xs text-gray-600">
-            <div className="flex">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star 
-                  key={star} 
-                  className="h-3 w-3 fill-current text-yellow-400" 
-                />
-              ))}
+          {/* Stock status */}
+          <div className="flex items-center justify-between mb-2">
+            <div className={`text-xs px-2 py-1 rounded-full ${
+              selectedItem?.isAvailable 
+                ? 'bg-green-100 text-green-700' 
+                : 'bg-red-100 text-red-700'
+            }`}>
+              {selectedItem?.isAvailable ? 'En stock' : 'Sin stock'}
             </div>
-            <span>(4.5)</span>
+            
+            {/* Rating placeholder */}
+            <div className="flex items-center gap-1 text-xs text-gray-600">
+              <div className="flex">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star 
+                    key={star} 
+                    className="h-3 w-3 fill-current text-yellow-400" 
+                  />
+                ))}
+              </div>
+              <span>(4.5)</span>
+            </div>
           </div>
         </CardContent>
       </div>
@@ -228,8 +295,7 @@ function getColorValue(colorName: string): string {
     'Naranja': '#FFA500',
     'Morado': '#800080',
     'Turquesa': '#40E0D0',
-    // Agregar más colores según sea necesario
   }
 
-  return colorMap[colorName] || '#CCCCCC' // Color por defecto
+  return colorMap[colorName] || '#CCCCCC'
 }
