@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { Search, Filter, Grid, List, Heart, ShoppingCart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,10 +11,8 @@ import { ProductFilters, SortOption, ViewMode } from "@/types/productsInterface"
 import ProductFiltersComponent from "./product-filters"
 import ProductCard from "./product-card"
 
-// Datos estáticos para filtros (estos podrían venir de tu API también)
-const categories = ["todos", "tenis", "zapatos", "sandalias", "botas"]
-const availableSizes = ["35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45"]
-const availableColors = ["Negro", "Blanco", "Azul", "Rojo", "Verde", "Amarillo", "Rosa", "Gris", "Marrón"]
+// Categorías disponibles - podrían venir de la API también
+const categories = ["todos", "bolsos", "camisetas", "cinturones", "manos libres"]
 
 const defaultFilters: ProductFilters = {
   category: "todos",
@@ -46,6 +44,30 @@ export default function ProductShowcase() {
     itemsPerPage: 12,
   })
 
+  // Extraer tallas y colores disponibles de los productos actuales
+  const availableOptions = useMemo(() => {
+    const sizes = new Set<string>();
+    const colors = new Set<string>();
+
+    products.forEach(product => {
+      product.availableSizes.forEach(size => sizes.add(size));
+      product.availableColors.forEach(color => colors.add(color));
+    });
+
+    return {
+      sizes: Array.from(sizes).sort((a, b) => {
+        // Ordenar tallas numéricamente
+        const numA = parseInt(a);
+        const numB = parseInt(b);
+        if (!isNaN(numA) && !isNaN(numB)) {
+          return numA - numB;
+        }
+        return a.localeCompare(b);
+      }),
+      colors: Array.from(colors).sort()
+    };
+  }, [products]);
+
   const handleCategoryChange = (category: string) => {
     updateFilters({ category })
   }
@@ -59,10 +81,6 @@ export default function ProductShowcase() {
     // Implementar lógica del carrito
   }
 
-  const handleToggleFavorite = (productId: string) => {
-    console.log('Toggle favorito:', productId)
-    // Implementar lógica de favoritos
-  }
 
   const handleProductClick = (productId: string) => {
     console.log('Ver producto:', productId)
@@ -174,15 +192,6 @@ export default function ProductShowcase() {
                 <List className="h-4 w-4" />
               </Button>
             </div>
-
-            {filters && (
-              <ProductFiltersComponent
-                filters={filters}
-                availableSizes={availableSizes}
-                availableColors={availableColors}
-                onUpdateFilters={updateFilters}
-              />
-            )}
           </div>
         </div>
 
@@ -263,7 +272,6 @@ export default function ProductShowcase() {
               key={product.productId} 
               product={product}
               onAddToCart={handleAddToCart}
-              onToggleFavorite={handleToggleFavorite}
               onProductClick={handleProductClick}
             />
           ))}
