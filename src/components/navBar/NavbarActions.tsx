@@ -1,5 +1,5 @@
-// components/navbar/NavbarActions.tsx
-import { Heart, ShoppingCart, Menu, X } from "lucide-react"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ShoppingCart, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"

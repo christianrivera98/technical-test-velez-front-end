@@ -1,6 +1,4 @@
-// Función utilitaria mejorada para transformar datos de la API
-// Agregar esta función al final de tu archivo types/productsInterface.ts
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Product, ProductItem } from "@/types/productsInterface";
 
 export function transformApiProduct(apiProduct: any): Product {

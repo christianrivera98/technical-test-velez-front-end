@@ -8,7 +8,7 @@ interface ProductSpecsProps {
   selectedItem: ProductItem
 }
 
-export function ProductSpecs({ product, selectedItem }: ProductSpecsProps) {
+export function ProductSpecs({ product }: ProductSpecsProps) {
   const specs = [
     { label: "Marca", value: product.brand },
     { label: "Categorías", value: product.categories.join(", ") },

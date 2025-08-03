@@ -1,6 +1,4 @@
-// Interfaces ajustadas según la respuesta real de la API
-
-// types/productsInterface.ts - ApiProduct actualizada
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export interface ApiProduct {
   productId: string;
@@ -125,93 +123,14 @@ export interface DeliverySlaSample {
   Region?: any;
 }
 
-export interface PaymentOptions {
-  installmentOptions: InstallmentOption[];
-  paymentSystems: PaymentSystem[];
-  payments: any[];
-  giftCards: any[];
-  giftCardMessages: any[];
-  availableAccounts: any[];
-  availableTokens: any[];
-}
 
-export interface InstallmentOption {
-  paymentSystem: string;
-  bin?: string;
-  paymentName: string;
-  paymentGroupName: string;
-  value: number;
-  installments: InstallmentDetail[];
-}
 
-export interface InstallmentDetail {
-  count: number;
-  hasInterestRate: boolean;
-  interestRate: number;
-  value: number;
-  total: number;
-  sellerMerchantInstallments: SellerMerchantInstallment[];
-}
-
-export interface SellerMerchantInstallment {
-  id: string;
-  count: number;
-  hasInterestRate: boolean;
-  interestRate: number;
-  value: number;
-  total: number;
-}
-
-export interface PaymentSystem {
-  id: number;
-  name: string;
-  groupName: string;
-  validator?: any;
-  stringId: string;
-  template: string;
-  requiresDocument: boolean;
-  isCustom: boolean;
-  description?: string;
-  requiresAuthentication: boolean;
-  dueDate: string;
-  availablePayments?: any;
-}
 
 export interface ReferenceId {
   Key: string;
   Value: string;
 }
 
-export interface SkuSpecification {
-  field: SkuField;
-  values: SkuValue[];
-}
-
-export interface SkuField {
-  id: number;
-  name: string;
-  isActive: boolean;
-  position: number;
-  type: string;
-}
-
-export interface SkuValue {
-  id: string;
-  name: string;
-  position: number;
-}
-
-export interface SpecificationGroup {
-  originalName: string;
-  name: string;
-  specifications: Specification[];
-}
-
-export interface Specification {
-  originalName: string;
-  name: string;
-  values: string[];
-}
 
 // Interfaces simplificadas para el componente de productos
 export interface Product {
@@ -233,7 +152,7 @@ export interface Product {
 export interface ProductItem {
   itemId: string;
   name: string;
-  images: Image[];
+  images: ImageInterface[];
   colors: string[];
   sizes: string[];
   price: number;
@@ -241,7 +160,7 @@ export interface ProductItem {
   isAvailable: boolean;
 }
 
-export interface Image {
+export interface ImageInterface {
   imageUrl: string;
   imageLabel?: string;
 }

@@ -1,5 +1,5 @@
 // components/navbar/DesktopNavigation.tsx
-import { Zap, ChevronDown } from "lucide-react"
+import { Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { navItems } from "./navItems"
 
@@ -10,7 +10,6 @@ interface DesktopNavigationProps {
 }
 
 export default function DesktopNavigation({
-  activeDropdown,
   onDropdownEnter,
   onDropdownLeave,
 }: DesktopNavigationProps) {

@@ -1,4 +1,4 @@
-// hooks/useProductDetails.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useMemo, useCallback } from "react"
 import type { ApiProduct } from "@/types/productsInterface"
 import { productService } from "@/lib/services/productsService"
@@ -72,12 +72,6 @@ export function useProductById(productId: string): UseProductDetailsReturn {
         
         setError(null);
       }
-    } catch (err) {
-      setError({
-        message: 'Error inesperado al obtener los detalles del producto',
-        statusCode: 500,
-      });
-      setProduct(null);
     } finally {
       setLoading(false);
     }

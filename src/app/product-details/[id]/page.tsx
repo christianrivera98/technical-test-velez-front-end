@@ -2,17 +2,14 @@
 
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Loader2, AlertCircle, ArrowLeft } from "lucide-react"
+import { Loader2, AlertCircle } from "lucide-react"
 import { ProductDetailsView } from "@/components/productDeails/product-details-view"
 import { useParams } from "next/navigation"
 import { useProductById } from "@/hooks/useProductDetails"
 
-interface ProductPageProps {
-  productId: string
-  onBack?: () => void
-}
 
-export default function ProductPage({ onBack }: ProductPageProps) {
+
+export default function ProductPage() {
   const params = useParams();
   const productId = params?.id as string;
   const { product, loading, error } = useProductById(productId)
@@ -51,16 +48,6 @@ export default function ProductPage({ onBack }: ProductPageProps) {
                   {error.message}
                 </p>
                 <div className="flex gap-2 justify-center">
-                  {onBack && (
-                    <Button
-                      variant="outline"
-                      onClick={onBack}
-                      className="flex items-center gap-2"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      Volver
-                    </Button>
-                  )}
                   <Button
                     onClick={() => window.location.reload()}
                     className="flex items-center gap-2"
@@ -90,15 +77,6 @@ export default function ProductPage({ onBack }: ProductPageProps) {
                 <p className="text-gray-600 mb-6">
                   El producto que buscas no existe o no está disponible.
                 </p>
-                {onBack && (
-                  <Button
-                    onClick={onBack}
-                    className="flex items-center gap-2 mx-auto"
-                  >
-                    <ArrowLeft className="w-4 h-4" />
-                    Volver
-                  </Button>
-                )}
               </Card>
             </div>
           </div>

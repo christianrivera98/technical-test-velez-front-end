@@ -1,42 +1,53 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import type { Image } from "@/types/productsInterface"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, ZoomIn, X } from "lucide-react"
+import { useState } from "react";
+import type { ImageInterface } from "@/types/productsInterface";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { ChevronLeft, ChevronRight, ZoomIn, X } from "lucide-react";
+import Image from "next/image";
 
 interface ImageGalleryProps {
-  images: Image[]
-  productName: string
+  images: ImageInterface[];
+  productName: string;
 }
 
 export function ImageGallery({ images, productName }: ImageGalleryProps) {
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
-  const [isZoomOpen, setIsZoomOpen] = useState(false)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
 
   // Si no hay imágenes, mostrar placeholder
   const displayImages =
     images.length > 0
       ? images
-      : [{ imageUrl: `/placeholder.svg?height=600&width=600&text=${encodeURIComponent(productName)}` }]
+      : [
+          {
+            imageUrl: `/placeholder.svg?height=600&width=600&text=${encodeURIComponent(
+              productName
+            )}`,
+          },
+        ];
 
-  const currentImage = displayImages[selectedImageIndex]
+  const currentImage = displayImages[selectedImageIndex];
 
   const nextImage = () => {
-    setSelectedImageIndex((prev) => (prev + 1) % displayImages.length)
-  }
+    setSelectedImageIndex((prev) => (prev + 1) % displayImages.length);
+  };
 
   const prevImage = () => {
-    setSelectedImageIndex((prev) => (prev - 1 + displayImages.length) % displayImages.length)
-  }
+    setSelectedImageIndex(
+      (prev) => (prev - 1 + displayImages.length) % displayImages.length
+    );
+  };
 
   return (
     <div className="space-y-4">
       {/* Imagen Principal */}
       <div className="relative group">
         <div className="aspect-square bg-gray-100 rounded-2xl overflow-hidden shadow-xl ring-1 ring-border">
-          <img
+          <Image
+            width={600}
+            height={600}
             key={currentImage.imageUrl} // Key para forzar re-render y activar animación
             src={currentImage.imageUrl || "/placeholder.svg"}
             alt={currentImage.imageLabel || productName}
@@ -93,7 +104,9 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
                   : "border-gray-200 hover:border-gray-300 hover:scale-[1.02]"
               }`}
             >
-              <img
+              <Image
+                width={600}
+                height={600}
                 src={image.imageUrl || "/placeholder.svg"}
                 alt={image.imageLabel || `${productName} ${index + 1}`}
                 className="w-full h-full object-cover"
@@ -106,7 +119,9 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
       <Dialog open={isZoomOpen} onOpenChange={setIsZoomOpen}>
         <DialogContent className="max-w-5xl w-full h-[90vh] p-0 bg-black/90 flex items-center justify-center">
           <div className="relative w-full h-full flex items-center justify-center">
-            <img
+            <Image
+              width={600}
+              height={600}
               key={`zoom-${currentImage.imageUrl}`} // Key para animación en el modal
               src={currentImage.imageUrl || "/placeholder.svg"}
               alt={currentImage.imageLabel || productName}
@@ -144,5 +159,5 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import type React from "react"
@@ -17,9 +18,7 @@ interface ProductInfoProps {
 export default function ProductInfo({
   product,
   selectedItem,
-  selectedItemIndex,
   hasDiscount,
-  onItemChange,
 }: ProductInfoProps) {
   return (
     <div className="relative bg-primary text-primary-foreground">
@@ -48,7 +47,7 @@ export default function ProductInfo({
             <div>
               <p className="text-xs opacity-80 mb-2 font-medium">Colores disponibles:</p>
               <div className="flex gap-1.5 flex-wrap">
-                {product.availableColors.slice(0, 6).map((color, index) => (
+                {product.availableColors.slice(0, 6).map((color) => (
                   <div
                     key={color}
                     className="w-5 h-5 rounded-full border border-primary-foreground/20 hover:scale-110 transition-transform duration-200"
@@ -70,7 +69,7 @@ export default function ProductInfo({
             <div>
               <p className="text-xs opacity-80 mb-1 font-medium">Tallas disponibles:</p>
               <div className="flex gap-1.5 flex-wrap">
-                {product.availableSizes.slice(0, 8).map((size, index) => (
+                {product.availableSizes.slice(0, 8).map((size) => (
                   <span
                     key={size}
                     className="text-xs px-2 py-1 bg-primary-foreground/10 rounded border border-primary-foreground/20"

@@ -1,5 +1,4 @@
 import { apiClient } from "@/api/apiClient";
-import { ApiResponse } from "@/api/apiResponse";
 import { handleApiError } from "@/api/errorHandler";
 import { ErrorResponse } from "@/api/errorResponse";
 import { ProductByIdResponse, ProductResponse } from "@/api/response/productsResponse";

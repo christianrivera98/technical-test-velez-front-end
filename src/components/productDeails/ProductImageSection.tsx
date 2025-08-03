@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Badge } from "@/components/ui/badge"
 import { ImageGallery } from "./image-gallery"
 import type { ApiProduct } from "@/types/productsInterface"

@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import type React from "react"
-import { Heart, ShoppingCart, Check } from "lucide-react"
+import { ShoppingCart, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { Product } from "@/types/productsInterface"
+import Image from "next/image"
 
 interface ProductImageProps {
   product: Product
@@ -24,15 +26,15 @@ export default function ProductImage({
   mainImage,
   hasDiscount,
   discountPercentage,
-  isFavorite,
   isAdded,
-  onFavoriteClick,
   onAddToCart,
 }: ProductImageProps) {
   return (
     <div className="relative aspect-[4/5] overflow-hidden bg-muted/30">
-      <img
+      <Image
         src={mainImage || "/placeholder.svg"}
+        width={500}
+        height={500}
         alt={product.productName}
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         loading="lazy"

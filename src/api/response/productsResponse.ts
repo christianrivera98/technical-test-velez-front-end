@@ -1,4 +1,4 @@
-import { ApiProduct, Product, ProductItem } from "@/types/productsInterface";
+import { ApiProduct, Product} from "@/types/productsInterface";
 import { ApiResponse } from "../apiResponse";
 
 export type ProductResponse = ApiResponse<Product[]>

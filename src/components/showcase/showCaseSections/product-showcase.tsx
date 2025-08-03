@@ -5,7 +5,6 @@ import SearchAndFiltersBar from "./SearchAndFiltersBar";
 import ActiveFilters from "./ActiveFilters";
 import ProductsGrid from "./ProductsGrid";
 import LoadingState from "./LoadingState";
-import EmptyState from "./EmptyState";
 import ErrorState from "./ErrorState";
 
 export default function ProductShowcase() {
@@ -16,7 +15,6 @@ export default function ProductShowcase() {
     products,
     loading,
     error,
-    hasMore,
     filters,
     sortOption,
     searchTerm,
