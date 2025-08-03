@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { useNavbar } from "@/hooks/useNavbar"
-
-interface MainNavbarProps {
-  searchTerm: string
-  setSearchTerm: (term: string) => void
-}
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet"
+import { Badge } from "../ui/badge"
+import { ShoppingCartSidebar } from "../cart/_components/shopping-cart-sidebar"
+import { useCart } from "../cart/context/shopping-cart-context"
+import { useState, useEffect } from "react"
+import Link from "next/link"
 
 const navItems = [
   { name: "Men", dropdown: null },
@@ -33,7 +34,7 @@ const navItems = [
   { name: "Sale", dropdown: null, isSpecial: true },
 ]
 
-export default function MainNavbar({ searchTerm, setSearchTerm }: MainNavbarProps) {
+export default function MainNavbar() {
   const {
     isSearchFocused,
     isMobileMenuOpen,
@@ -44,6 +45,35 @@ export default function MainNavbar({ searchTerm, setSearchTerm }: MainNavbarProp
     handleDropdownEnter,
     handleDropdownLeave,
   } = useNavbar()
+
+  const { state } = useCart()
+  const [cartAnimation, setCartAnimation] = useState(false)
+  const [isSheetOpen, setIsSheetOpen] = useState(false)
+
+  // Trigger animation when cart count changes
+  useEffect(() => {
+    if (state.itemCount > 0) {
+      setCartAnimation(true)
+      const timer = setTimeout(() => setCartAnimation(false), 300)
+      return () => clearTimeout(timer)
+    }
+  }, [state.itemCount])
+
+  // Log para debugging - IMPORTANTE: Esto te ayudará a ver si el estado se actualiza
+  useEffect(() => {
+    console.log('MainNavbar - Cart State Updated:', {
+      itemCount: state.itemCount,
+      total: state.total,
+      items: state.items,
+      lastUpdated: state.lastUpdated
+    })
+  }, [state])
+
+  // Función para manejar la apertura del carrito
+  const handleCartClick = () => {
+    console.log('MainNavbar - Cart clicked, current state:', state)
+    setIsSheetOpen(true)
+  }
 
   return (
     <header
@@ -74,6 +104,7 @@ export default function MainNavbar({ searchTerm, setSearchTerm }: MainNavbarProp
               </div>
 
               <div className="flex flex-col">
+                <Link href={"/"}>
                 <h1
                   className={cn(
                     "font-black bg-gradient-to-r from-dark-green via-olive-green to-burnt-orange bg-clip-text text-sidebar-primary transition-all duration-500",
@@ -82,6 +113,8 @@ export default function MainNavbar({ searchTerm, setSearchTerm }: MainNavbarProp
                 >
                   StyleShop
                 </h1>
+                
+                </Link>
                 <div className="flex space-x-1">
                   <div className="w-1 h-1 bg-golden rounded-full animate-pulse"></div>
                   <div className="w-1 h-1 bg-burnt-orange rounded-full animate-pulse delay-200"></div>
@@ -207,8 +240,6 @@ export default function MainNavbar({ searchTerm, setSearchTerm }: MainNavbarProp
                 />
                 <Input
                   placeholder="Descubre tu estilo..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
                   onBlur={() => setIsSearchFocused(false)}
                   className="relative pl-12 pr-4 py-3 bg-transparent border-0 rounded-full focus:ring-2 focus:ring-olive-green/50 placeholder:text-olive-green/60 text-dark-green font-medium"
@@ -242,18 +273,45 @@ export default function MainNavbar({ searchTerm, setSearchTerm }: MainNavbarProp
 
               {/* Cart with Pulsing Animation */}
               <div className="relative group">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative w-12 h-12 rounded-full bg-gradient-to-br from-cream/50 to-light-gray/50 hover:from-olive-green/20 hover:to-dark-green/20 transition-all duration-300 hover:scale-110 hover:shadow-lg"
-                >
-                  <ShoppingCart className="h-5 w-5 text-dark-green group-hover:text-olive-green transition-colors duration-300" />
-                </Button>
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-olive-green to-dark-green rounded-full flex items-center justify-center shadow-lg">
-                  <span className="text-pure-white text-xs font-bold">2</span>
-                </div>
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-olive-green/50 rounded-full animate-ping"></div>
-                <div className="absolute inset-0 bg-gradient-to-r from-olive-green/20 to-dark-green/20 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-lg"></div>
+                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                  <SheetTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleCartClick}
+                      className={`relative text-dark-green hover:text-olive-green hover:bg-olive-green/10 transition-all duration-200 ${
+                        cartAnimation ? 'scale-110' : ''
+                      }`}
+                    >
+                      <ShoppingCart className="h-5 w-5" />
+                      <span className="ml-2 hidden sm:inline">Carrito</span>
+                      {state.itemCount > 0 && (
+                        <Badge
+                          variant="destructive"
+                          className={`absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-burnt-orange hover:bg-burnt-orange transition-all duration-200 ${
+                            cartAnimation ? 'animate-bounce scale-125' : ''
+                          }`}
+                        >
+                          {state.itemCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent className="w-full sm:max-w-lg">
+                    <SheetHeader>
+                      <SheetTitle className="flex items-center gap-2">
+                        <ShoppingCart className="h-5 w-5" />
+                        Carrito de Compras
+                        {state.itemCount > 0 && (
+                          <Badge variant="outline" className="ml-2">
+                            {state.itemCount} {state.itemCount === 1 ? 'artículo' : 'artículos'}
+                          </Badge>
+                        )}
+                      </SheetTitle>
+                    </SheetHeader>
+                    <ShoppingCartSidebar />
+                  </SheetContent>
+                </Sheet>
               </div>
 
               {/* Mobile Menu with Morphing Icon */}
@@ -295,8 +353,6 @@ export default function MainNavbar({ searchTerm, setSearchTerm }: MainNavbarProp
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-olive-green h-4 w-4" />
                   <Input
                     placeholder="Buscar productos..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-12 pr-4 py-3 bg-pure-white/20 backdrop-blur-md border-0 rounded-full focus:ring-2 focus:ring-olive-green/50"
                   />
                 </div>
