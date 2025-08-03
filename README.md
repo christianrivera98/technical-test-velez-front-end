@@ -1,37 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛍️ Technical Test – Vélez Front-End
 
-## Getting Started
+Aplicación web desarrollada como prueba técnica para Vélez, centrada en la experiencia de usuario al explorar productos. Incluye filtrado dinámico, paginación, vistas detalladas y una arquitectura escalable y moderna con Next.js 15 y TypeScript.
 
-First, run the development server:
+---
+
+## 🚀 Tecnologías
+
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
+- **Lenguaje**: TypeScript
+- **Estilos**: Tailwind CSS + `tw-animate-css`
+- **Animaciones**: Framer Motion
+- **Componentes UI**: Radix UI
+- **Íconos**: Lucide
+- **Cliente HTTP**: Axios
+- **Empaquetador**: Turbopack (por defecto en Next.js 15)
+- **Gestión de paquetes**: Yarn
+
+---
+
+## 📁 Estructura del Proyecto
+
+src/
+├── app/ # Páginas y layout
+│ └── product-details/[id] # Vista de detalle dinámico
+├── components/ # Componentes reutilizables
+├── features/ # Lógica por dominio
+├── hooks/ # Hooks personalizados
+├── lib/ # Servicios API y helpers
+├── types/ # Tipado global del proyecto
+├── utils/ # Funciones auxiliares
+├── public/ # Imágenes y recursos estáticos
+
+## 📦 Instalación
+
+### 1. Clona el repositorio
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+git clone https://github.com/tu-usuario/technical-test-velez-front-end.git
+cd technical-test-velez-front-end
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# technical-test-velez-front-end
+yarn install
