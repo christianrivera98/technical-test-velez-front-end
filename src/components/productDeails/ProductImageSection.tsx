@@ -24,18 +24,13 @@ export default function ProductImageSection({
           <p className="text-gray-500">Sin imágenes disponibles</p>
         </div>
       )}
-
       {/* Badges flotantes */}
       <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
         {discountPercentage > 0 && (
-          <Badge className="bg-red-500 hover:bg-red-600 text-white">
-            -{discountPercentage}%
-          </Badge>
+          <Badge className="bg-red-500 hover:bg-red-600 text-white animate-fade-in">-{discountPercentage}%</Badge>
         )}
         {!isAvailable && (
-          <Badge className="bg-gray-500 hover:bg-gray-600 text-white">
-            No disponible
-          </Badge>
+          <Badge className="bg-gray-500 hover:bg-gray-600 text-white animate-fade-in">No disponible</Badge>
         )}
       </div>
     </div>

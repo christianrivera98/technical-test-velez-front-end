@@ -1,5 +1,4 @@
 "use client"
-import type React from "react"
 import { Card } from "@/components/ui/card"
 import type { Product } from "@/types/productsInterface"
 import { useProductCard } from "@/hooks/useProductCard"
@@ -24,11 +23,12 @@ export default function ProductCard({ product, onProductClick, onAddToCart }: Pr
     handleFavoriteClick,
     handleAddToCart,
     handleCardClick,
-    handleItemChange
+    handleItemChange,
   } = useProductCard(product, onAddToCart)
 
   return (
-    <Card className="group cursor-pointer overflow-hidden bg-card border border-border/60 hover:border-border transition-all duration-300 hover:shadow-lg">
+    <Card className="group cursor-pointer overflow-hidden bg-card border border-border/60 hover:border-border transition-all duration-300 hover:shadow-lg relative">
+      {/* Added relative to Card for absolute positioning of ProductInfo's overlay */}
       <div onClick={() => handleCardClick(onProductClick)}>
         <ProductImage
           product={product}
@@ -41,7 +41,7 @@ export default function ProductCard({ product, onProductClick, onAddToCart }: Pr
           onFavoriteClick={handleFavoriteClick}
           onAddToCart={handleAddToCart}
         />
-        
+
         <ProductInfo
           product={product}
           selectedItem={selectedItem}

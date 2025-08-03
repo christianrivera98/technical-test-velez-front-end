@@ -1,16 +1,25 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/*---break---*/
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards; 
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
   --font-geist-sans: "Geist", sans-serif;
   --font-geist-mono: "Geist Mono", monospace;
   --radius: 0.625rem;
-
-  /* Paleta de colores: ["#1c1c1c","#daddd8","#ecebe4","#eef0f2","#fafaff"] */
-  /* Colores principales para modo claro */
   --background: #fafaff;
   --foreground: #1c1c1c;
   --card: #ffffff;
@@ -30,15 +39,11 @@
   --border: rgba(28, 28, 28, 0.2);
   --input: #daddd8;
   --ring: #1c1c1c;
-
-  /* Colores de gráficos usando la nueva paleta */
   --chart-1: #1c1c1c;
   --chart-2: #daddd8;
   --chart-3: #ecebe4;
   --chart-4: #eef0f2;
   --chart-5: #fafaff;
-
-  /* Sidebar con la nueva paleta */
   --sidebar: #ecebe4;
   --sidebar-foreground: #1c1c1c;
   --sidebar-primary: #1c1c1c;
@@ -90,10 +95,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/*---break---*/
 .dark {
-  /* Paleta de colores: ["#1c1c1c","#daddd8","#ecebe4","#eef0f2","#fafaff"] */
-  /* Colores para modo oscuro */
   --background: #1c1c1c;
   --foreground: #fafaff;
   --card: #1c1c1c;
@@ -113,15 +115,11 @@
   --border: rgba(255, 255, 255, 0.1);
   --input: #daddd8;
   --ring: #fafaff;
-
-  /* Gráficos en modo oscuro */
   --chart-1: #fafaff;
   --chart-2: #eef0f2;
   --chart-3: #ecebe4;
   --chart-4: #daddd8;
   --chart-5: #1c1c1c;
-
-  /* Sidebar en modo oscuro */
   --sidebar: #1c1c1c;
   --sidebar-foreground: #fafaff;
   --sidebar-primary: #fafaff;
@@ -132,7 +130,6 @@
   --sidebar-ring: #fafaff;
 }
 
-/*---break---*/
 @layer base {
   * {
     @apply border-border outline-ring/50;
