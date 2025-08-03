@@ -186,11 +186,7 @@ export const useProducts = (options: UseProductsOptions = {}) => {
     }
   }, [itemsPerPage, filters, sortOption, applyFilters, applySorting, searchTerm]); 
 
-  const loadMore = useCallback(() => {
-    if (!state.loading && state.hasMore) {
-      fetchProducts(state.currentPage + 1, false, filters, sortOption);
-    }
-  }, [state.loading, state.hasMore, state.currentPage, fetchProducts, filters, sortOption]);
+
 
   const updateFilters = useCallback((newFilters: Partial<ProductFilters>) => {
     setFilters(prev => prev ? { ...prev, ...newFilters } : newFilters as ProductFilters);
@@ -198,12 +194,6 @@ export const useProducts = (options: UseProductsOptions = {}) => {
 
   const updateSort = useCallback((newSort: SortOption) => {
     setSortOption(newSort);
-  }, []);
-
-  const clearFilters = useCallback(() => {
-    setFilters({ category: 'todos' });
-    setSearchTerm('');
-    setSortOption('featured');
   }, []);
 
   const refetch = useCallback(() => {
@@ -242,12 +232,10 @@ export const useProducts = (options: UseProductsOptions = {}) => {
     searchTerm,
     
     // Acciones
-    loadMore,
     refetch,
     updateFilters,
     updateSort,
     setSearchTerm,
-    clearFilters,
     fetchProducts: (page?: number, reset?: boolean) => fetchProducts(page, reset, filters, sortOption),
   };
 };
