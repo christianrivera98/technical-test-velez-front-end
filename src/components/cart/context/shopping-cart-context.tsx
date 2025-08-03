@@ -11,7 +11,6 @@ export interface CartItem {
   color?: string
   size?: string
   quantity: number
-  // Campos adicionales para tu estructura de producto
   itemId?: string
   brand?: string
   isAvailable?: boolean
@@ -21,9 +20,8 @@ interface CartState {
   items: CartItem[]
   total: number
   itemCount: number
-  // Agregamos un timestamp para forzar re-renders
   lastUpdated: number
-  isLoaded: boolean // Nuevo campo para controlar la hidratación
+  isLoaded: boolean 
 }
 
 type CartAction =
@@ -32,7 +30,7 @@ type CartAction =
   | { type: "UPDATE_QUANTITY"; payload: { id: string; quantity: number } }
   | { type: "CLEAR_CART" }
   | { type: "LOAD_CART"; payload: CartState }
-  | { type: "SET_LOADED" } // Nueva acción
+  | { type: "SET_LOADED" } 
 
 const CART_STORAGE_KEY = "shopping-cart"
 
@@ -45,7 +43,6 @@ const CartContext = createContext<{
   clearCart: () => void
 } | null>(null)
 
-// Función para cargar el carrito desde localStorage (solo en el cliente)
 function loadCartFromStorage(): CartState {
   if (typeof window === "undefined") {
     return { items: [], total: 0, itemCount: 0, lastUpdated: Date.now(), isLoaded: false }
@@ -68,12 +65,10 @@ function loadCartFromStorage(): CartState {
   return { items: [], total: 0, itemCount: 0, lastUpdated: Date.now(), isLoaded: true }
 }
 
-// Función para guardar el carrito en localStorage (solo en el cliente)
 function saveCartToStorage(state: CartState) {
   if (typeof window === "undefined" || !state.isLoaded) return
   
   try {
-    // No guardamos isLoaded en localStorage
     const { isLoaded, ...stateToSave } = state
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(stateToSave))
   } catch (error) {
@@ -81,12 +76,10 @@ function saveCartToStorage(state: CartState) {
   }
 }
 
-// Función para generar clave del item
 function generateItemKey(item: CartItem | Omit<CartItem, "quantity">): string {
   return `${item.id}-${item.color || ''}-${item.size || ''}-${item.itemId || ''}`
 }
 
-// Función para calcular totales
 function calculateTotals(items: CartItem[]): { total: number; itemCount: number } {
   const total = Number(items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2))
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
@@ -166,7 +159,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
             ? { ...item, quantity: Math.max(0, action.payload.quantity) } 
             : item
         })
-        .filter((item) => item.quantity > 0) // Eliminar items con cantidad 0
+        .filter((item) => item.quantity > 0) 
 
       const { total, itemCount } = calculateTotals(newItems)
       newState = { 
@@ -215,7 +208,6 @@ export function ShoppingCartProvider({ children }: { children: ReactNode }) {
     isLoaded: false,
   })
 
-  // Cargar el carrito desde localStorage al montar el componente (solo en el cliente)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedCart = loadCartFromStorage()
@@ -227,19 +219,16 @@ export function ShoppingCartProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Guardar en localStorage cada vez que cambie el estado (solo después de cargar)
   useEffect(() => {
     if (state.isLoaded) {
       saveCartToStorage(state)
     }
   }, [state])
 
-  // Log para debugging
   useEffect(() => {
     console.log('Cart State Updated:', state)
   }, [state])
 
-  // Funciones helper con useCallback para evitar recreaciones innecesarias
   const addItem = useCallback((item: Omit<CartItem, "quantity">) => {
     console.log('addItem called with:', item)
     dispatch({ type: "ADD_ITEM", payload: item })
@@ -260,7 +249,6 @@ export function ShoppingCartProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "CLEAR_CART" })
   }, [])
 
-  // Valor del contexto
   const contextValue = {
     state,
     dispatch,
@@ -285,13 +273,11 @@ export function useCart() {
   return context
 }
 
-// Hook personalizado para obtener solo el estado (útil para componentes que solo leen)
 export function useCartState() {
   const { state } = useCart()
   return state
 }
 
-// Hook personalizado para obtener solo las acciones (útil para componentes que solo escriben)
 export function useCartActions() {
   const { addItem, removeItem, updateQuantity, clearCart } = useCart()
   return { addItem, removeItem, updateQuantity, clearCart }

@@ -113,15 +113,6 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
               alt={currentImage.imageLabel || productName}
               className="w-full h-full object-contain"
             />
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsZoomOpen(false)}
-              className="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-
             {displayImages.length > 1 && (
               <>
                 <Button
