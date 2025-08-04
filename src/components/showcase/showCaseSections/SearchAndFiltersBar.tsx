@@ -49,7 +49,7 @@ export default function SearchAndFiltersBar({
 
       <div className="flex flex-wrap gap-4">
         <Select value={selectedCategory} onValueChange={onCategoryChange}>
-          <SelectTrigger className="w-40 bg-pure-white border-cream">
+          <SelectTrigger className="w-40 bg-pure-white border-cream cursor-pointer">
             <SelectValue placeholder="Categoría" />
           </SelectTrigger>
           <SelectContent>
@@ -62,7 +62,7 @@ export default function SearchAndFiltersBar({
         </Select>
 
         <Select value={sortOption} onValueChange={onSortChange}>
-          <SelectTrigger className="w-48 bg-pure-white border-cream">
+          <SelectTrigger className="w-48 bg-pure-white border-crea cursor-pointer">
             <SelectValue placeholder="Ordenar por" />
           </SelectTrigger>
           <SelectContent>
