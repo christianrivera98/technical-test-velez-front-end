@@ -14,8 +14,6 @@ export default function ProductPage() {
   const productId = params?.id as string;
   const { product, loading, error } = useProductById(productId)
   
-  console.log("Product ID from params:", productId);
-  console.log("Product data:", product);
 
   // Estado de carga
   if (loading) {

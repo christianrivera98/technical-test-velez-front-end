@@ -27,7 +27,6 @@ export function useProductCard(product: Product, onAddToCart?: (productId: strin
     e.stopPropagation()
 
     if (selectedItem && selectedItem.isAvailable) {
-      console.log("ProductCard: Adding to cart", selectedItem)
 
       const cartItem = {
         id: product.productId,
@@ -41,9 +40,6 @@ export function useProductCard(product: Product, onAddToCart?: (productId: strin
         isAvailable: selectedItem.isAvailable,
       }
 
-      console.log("ProductCard: Cart item to add:", cartItem)
-      console.log("ProductCard: Current cart state before add:", state)
-
       try {
         addItem(cartItem)
         if (onAddToCart) {
@@ -51,7 +47,6 @@ export function useProductCard(product: Product, onAddToCart?: (productId: strin
         }
         setIsAdded(true)
         setTimeout(() => setIsAdded(false), 2000)
-        console.log("ProductCard: Item added successfully")
       } catch (error) {
         console.error("ProductCard: Error adding item to cart:", error)
       }

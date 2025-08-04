@@ -107,7 +107,6 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         currentFilters || filters,
         currentSort || sortOption
       );
-      console.log('Fetched products result:', result);
   
       if ('statusCode' in result) {
         // Es un error
@@ -127,17 +126,13 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         } else if (result && typeof result === 'object' && 'products' in result && Array.isArray(result.products)) {
           apiProducts = result.products;
         } else {
-          console.log('Invalid data format');
           apiProducts = [];
         }
         
-        console.log('API products before transformation:', apiProducts);
         
         // Transformar productos de la API al formato interno
         const transformedProducts = apiProducts.map(transformApiProduct);
-        console.log('Transformed products:', transformedProducts);
         
-        // Para el primer fetch o cuando no hay filtros específicos, mostrar todos los productos
         let processedProducts = transformedProducts;
         
         // Solo aplicar filtros si hay criterios activos
@@ -153,7 +148,6 @@ export const useProducts = (options: UseProductsOptions = {}) => {
         // Aplicar ordenamiento
         processedProducts = applySorting(processedProducts, currentSort || sortOption);
         
-        console.log('Final processed products:', processedProducts);
         
         setState(prev => ({
           ...prev,
@@ -165,12 +159,6 @@ export const useProducts = (options: UseProductsOptions = {}) => {
           hasMore: processedProducts.length === itemsPerPage,
         })); 
         
-        console.log('Updated products state:', {
-          products: processedProducts, 
-          totalProducts: transformedProducts.length, 
-          currentPage: page, 
-          hasMore: processedProducts.length === itemsPerPage
-        });
       }
     } catch (error) {
       console.error('Error in fetchProducts:', error);
@@ -203,7 +191,6 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   // Auto-fetch cuando cambian los filtros o sort
   useEffect(() => {
     if (autoFetch && hasInitialFetched.current) {
-      console.log('Auto-fetch triggered by filters/sort change');
       fetchProducts(1, true, filters, sortOption);
     }
   }, [filters, sortOption, searchTerm, autoFetch, fetchProducts]);
@@ -211,7 +198,6 @@ export const useProducts = (options: UseProductsOptions = {}) => {
   // Initial fetch - solo una vez
   useEffect(() => {
     if (autoFetch && !hasInitialFetched.current) {
-      console.log('Initial fetch triggered');
       hasInitialFetched.current = true;
       fetchProducts(1, true, filters, sortOption);
     }

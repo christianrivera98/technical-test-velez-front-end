@@ -42,7 +42,6 @@ export const productService = {
   ): Promise<ProductByIdResponse | ErrorResponse> => {
     try {
       const response = await apiClient.get<ProductByIdResponse>(`/products/${productId}`);
-      console.log("Fetched product by id:", response.data);
       return response.data;
       
     } catch (error) {
