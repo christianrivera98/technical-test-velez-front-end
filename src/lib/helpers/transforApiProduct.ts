@@ -2,10 +2,6 @@
 import { Product, ProductItem } from "@/types/productsInterface";
 
 export function transformApiProduct(apiProduct: any): Product {
-  console.log("🔄 Transforming API product:", apiProduct);
-  console.log("🔍 API Product keys:", Object.keys(apiProduct || {}));
-  console.log("🔍 API Product type:", typeof apiProduct);
-  
   // Ultra-defensive approach
   if (!apiProduct || typeof apiProduct !== 'object') {
     throw new Error("Invalid API product data");
@@ -17,13 +13,6 @@ export function transformApiProduct(apiProduct: any): Product {
   let maxPrice = 0;
   let hasDiscount = false;
 
-  // DEBUGGING: Revisar todas las formas posibles de acceder a items
-  console.log("🔍 Checking items access methods:");
-  console.log("  - Direct 'items':", apiProduct.items);
-  console.log("  - Bracket 'items':", apiProduct['items']);
-  console.log("  - Has items property:", 'items' in apiProduct);
-  console.log("  - Items type:", typeof apiProduct.items);
-  console.log("  - Items is array:", Array.isArray(apiProduct.items));
 
   // Método alternativo: buscar propiedades que contengan arrays de items
   const possibleItemsKeys = ['items', 'skus', 'variants', 'products'];
@@ -34,24 +23,20 @@ export function transformApiProduct(apiProduct: any): Product {
     if (apiProduct[key] && Array.isArray(apiProduct[key])) {
       itemsArray = apiProduct[key];
       foundItemsKey = key;
-      console.log(`✅ Found items in property: ${key}`, itemsArray);
       break;
     }
   }
 
   // Si no encontramos items en las propiedades esperadas, buscar cualquier array
   if (itemsArray.length === 0) {
-    console.log("🔍 Searching for any array property...");
     for (const [key, value] of Object.entries(apiProduct)) {
       if (Array.isArray(value) && value.length > 0) {
-        console.log(`📦 Found array in ${key}:`, value);
         // Verificar si el primer elemento parece un item de producto
         const firstItem = value[0];
         if (firstItem && typeof firstItem === 'object' && 
             (firstItem.itemId || firstItem.id || firstItem.sku)) {
           itemsArray = value;
           foundItemsKey = key;
-          console.log(`✅ Using array from ${key} as items`);
           break;
         }
       }
@@ -60,12 +45,10 @@ export function transformApiProduct(apiProduct: any): Product {
 
   // Si aún no hay items, crear uno a partir del producto principal
   if (itemsArray.length === 0) {
-    console.log("⚠️ No items found, creating fallback from main product");
     itemsArray = [apiProduct]; // Usar el producto principal como item
     foundItemsKey = 'main-product';
   }
 
-  console.log(`📦 Processing ${itemsArray.length} items from ${foundItemsKey}`);
 
   const items: ProductItem[] = [];
 
@@ -74,11 +57,7 @@ export function transformApiProduct(apiProduct: any): Product {
     try {
       const item = itemsArray[i];
       
-      console.log(`🔍 Processing item ${i}:`, item);
-      console.log(`🔍 Item keys:`, Object.keys(item || {}));
-      
       if (!item || typeof item !== 'object') {
-        console.warn(`⚠️ Skipping invalid item at index ${i}`);
         continue;
       }
 
@@ -90,11 +69,9 @@ export function transformApiProduct(apiProduct: any): Product {
         if (item[key]) {
           if (Array.isArray(item[key])) {
             sellers = item[key];
-            console.log(`✅ Found sellers in ${key}:`, sellers);
             break;
           } else if (typeof item[key] === 'object') {
             sellers = [item[key]];
-            console.log(`✅ Found single seller in ${key}:`, sellers);
             break;
           }
         }
@@ -102,7 +79,6 @@ export function transformApiProduct(apiProduct: any): Product {
 
       // Si no hay sellers, crear uno por defecto
       if (sellers.length === 0) {
-        console.log("⚠️ No sellers found, creating default seller");
         sellers = [{
           sellerId: "default",
           sellerName: "Default",
@@ -138,7 +114,6 @@ export function transformApiProduct(apiProduct: any): Product {
           });
           
           if (colors.length > 0) {
-            console.log(`✅ Found colors in ${key}:`, colors);
             break;
           }
         }
@@ -168,7 +143,6 @@ export function transformApiProduct(apiProduct: any): Product {
           });
           
           if (sizes.length > 0) {
-            console.log(`✅ Found sizes in ${key}:`, sizes);
             break;
           }
         }
@@ -181,10 +155,8 @@ export function transformApiProduct(apiProduct: any): Product {
       
       try {
         const seller = sellers[0];
-        console.log("🔍 Processing seller:", seller);
         
         const commercialOffer = seller?.commertialOffer || seller?.['commertialOffer'] || seller?.commercialOffer;
-        console.log("🔍 Commercial offer:", commercialOffer);
         
         if (commercialOffer) {
           price = commercialOffer.Price ? commercialOffer.Price / 100 : 0;
@@ -197,7 +169,6 @@ export function transformApiProduct(apiProduct: any): Product {
           isAvailable = item.available !== false;
         }
         
-        console.log(`💰 Pricing - Price: ${price}, ListPrice: ${listPrice}, Available: ${isAvailable}`);
       } catch (e) {
         console.warn(`⚠️ Error extracting pricing for item ${i}:`, e);
       }
@@ -232,7 +203,6 @@ export function transformApiProduct(apiProduct: any): Product {
           });
           
           if (images.length > 0) {
-            console.log(`✅ Found images in ${key}:`, images);
             break;
           }
         }
@@ -250,7 +220,6 @@ export function transformApiProduct(apiProduct: any): Product {
       };
 
       items.push(processedItem);
-      console.log(`✅ Successfully processed item ${i}:`, processedItem);
 
     } catch (error) {
       console.error(`❌ Error processing item ${i}:`, error);
@@ -304,6 +273,5 @@ export function transformApiProduct(apiProduct: any): Product {
     isNew
   };
 
-  console.log("✅ Transform completed successfully:", transformedProduct);
   return transformedProduct;
 }

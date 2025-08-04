@@ -89,8 +89,7 @@ function calculateTotals(items: CartItem[]): { total: number; itemCount: number 
 }
 
 function cartReducer(state: CartState, action: CartAction): CartState {
-  console.log('Cart Reducer - Action:', action.type)
-  console.log('Cart Reducer - Current State:', state)
+
   
   let newItems: CartItem[]
   let newState: CartState
@@ -101,7 +100,6 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 
     case "ADD_ITEM": {
       const itemKey = generateItemKey(action.payload)
-      console.log('Adding item with key:', itemKey)
       
       const existingItemIndex = state.items.findIndex(
         (item) => generateItemKey(item) === itemKey
@@ -114,11 +112,9 @@ function cartReducer(state: CartState, action: CartAction): CartState {
             ? { ...item, quantity: item.quantity + 1 } 
             : item
         )
-        console.log('Item exists, incrementing quantity')
       } else {
         // Si es un item nuevo, agregarlo
         newItems = [...state.items, { ...action.payload, quantity: 1 }]
-        console.log('New item added')
       }
 
       const { total, itemCount } = calculateTotals(newItems)
@@ -133,7 +129,6 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     }
 
     case "REMOVE_ITEM": {
-      console.log('Removing item with key:', action.payload)
       
       newItems = state.items.filter((item) => {
         const itemKey = generateItemKey(item)
@@ -152,7 +147,6 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     }
 
     case "UPDATE_QUANTITY": {
-      console.log('Updating quantity for:', action.payload.id, 'to:', action.payload.quantity)
       
       newItems = state.items
         .map((item) => {
@@ -175,7 +169,6 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     }
 
     case "CLEAR_CART":
-      console.log('Clearing cart')
       newState = { 
         ...state,
         items: [], 
@@ -186,7 +179,6 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       break
 
     case "LOAD_CART":
-      console.log('Loading cart from storage')
       return {
         ...action.payload,
         lastUpdated: Date.now(),
@@ -197,7 +189,6 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return state
   }
 
-  console.log('Cart Reducer - New State:', newState)
   return newState
 }
 
@@ -228,26 +219,21 @@ export function ShoppingCartProvider({ children }: { children: ReactNode }) {
   }, [state])
 
   useEffect(() => {
-    console.log('Cart State Updated:', state)
   }, [state])
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">) => {
-    console.log('addItem called with:', item)
     dispatch({ type: "ADD_ITEM", payload: item })
   }, [])
 
   const removeItem = useCallback((itemKey: string) => {
-    console.log('removeItem called with:', itemKey)
     dispatch({ type: "REMOVE_ITEM", payload: itemKey })
   }, [])
 
   const updateQuantity = useCallback((itemKey: string, quantity: number) => {
-    console.log('updateQuantity called with:', itemKey, quantity)
     dispatch({ type: "UPDATE_QUANTITY", payload: { id: itemKey, quantity } })
   }, [])
 
   const clearCart = useCallback(() => {
-    console.log('clearCart called')
     dispatch({ type: "CLEAR_CART" })
   }, [])
 

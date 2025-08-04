@@ -28,7 +28,6 @@ export const useNavbar = () => {
     setActiveDropdown(null)
   }
 
-   // Trigger animation when cart count changes
   useEffect(() => {
     if (state.itemCount > 0) {
       setCartAnimation(true)
@@ -37,19 +36,9 @@ export const useNavbar = () => {
     }
   }, [state.itemCount])
 
-  // Log para debugging - IMPORTANTE: Esto te ayudará a ver si el estado se actualiza
-  useEffect(() => {
-    console.log('MainNavbar - Cart State Updated:', {
-      itemCount: state.itemCount,
-      total: state.total,
-      items: state.items,
-      lastUpdated: state.lastUpdated
-    })
-  }, [state])
 
   // Función para manejar la apertura del carrito
   const handleCartClick = () => {
-    console.log('MainNavbar - Cart clicked, current state:', state)
     setIsSheetOpen(true)
   }
 

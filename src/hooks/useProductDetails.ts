@@ -44,7 +44,6 @@ export function useProductById(productId: string): UseProductDetailsReturn {
 
     try {
       const response = await productService.getProductById(productId);
-      console.log("productbyid response:", response);
 
       if ('error' in response) {
         setError(response as ErrorResponse);
@@ -57,7 +56,6 @@ export function useProductById(productId: string): UseProductDetailsReturn {
           // Es un array, tomar el primer producto
           if (productData.length > 0) {
             setProduct(productData[0]);
-            console.log("encontré el producto (primer elemento del array):", productData[0]);
           } else {
             setError({
               message: 'No se encontró el producto',
@@ -67,7 +65,6 @@ export function useProductById(productId: string): UseProductDetailsReturn {
           }
         } else {
           setProduct(productData);
-          console.log("encontré el producto (objeto único):", productData);
         }
         
         setError(null);
@@ -146,13 +143,6 @@ export function useProductById(productId: string): UseProductDetailsReturn {
 
   const handleAddToCart = () => {
     if (!selectedItemData || !product) return;
-
-    console.log("Agregando al carrito:", {
-      product,
-      selectedColor,
-      selectedSize,
-      quantity,
-    });
 
     // Crear el item del carrito
     const cartItem = {

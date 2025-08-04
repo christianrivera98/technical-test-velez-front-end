@@ -33,8 +33,7 @@ export function ProductVariantSelector({
     )
   );
 
-  console.log("Available colors:", availableColors);
-  console.log("Available sizes:", availableSizes);
+
 
   return (
     <div className="space-y-6">
