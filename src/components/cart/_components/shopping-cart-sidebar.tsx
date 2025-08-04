@@ -102,7 +102,7 @@ export function ShoppingCartSidebar() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleRemoveItem(item.key)}
-                  className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors duration-200"
+                  className="h-8 w-8 p-0 cursor-pointer text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors duration-200"
                   title="Eliminar producto"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -115,7 +115,7 @@ export function ShoppingCartSidebar() {
                     onClick={() =>
                       handleUpdateQuantity(item.key, item.quantity - 1)
                     }
-                    className="h-8 w-8 p-0 hover:bg-gray-100 transition-colors duration-200"
+                    className="h-8 w-8 p-0 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
                     disabled={item.quantity <= 1}
                     title="Disminuir cantidad"
                   >
@@ -130,7 +130,7 @@ export function ShoppingCartSidebar() {
                     onClick={() =>
                       handleUpdateQuantity(item.key, item.quantity + 1)
                     }
-                    className="h-8 w-8 p-0 hover:bg-gray-100 transition-colors duration-200"
+                    className="h-8 w-8 p-0 cursor-pointer hover:bg-gray-100 transition-colors duration-200"
                     title="Aumentar cantidad"
                   >
                     <Plus className="h-3 w-3" />
@@ -165,7 +165,7 @@ export function ShoppingCartSidebar() {
           </Button>
           <Button
             variant="outline"
-            className="w-full bg-transparent hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
+            className="w-full bg-transparent cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
             onClick={handleClearCart}
           >
             Vaciar Carrito
